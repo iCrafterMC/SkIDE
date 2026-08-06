@@ -2,7 +2,7 @@
 
 SkIDE is an integrated development environment (IDE) for the [Skript](https://github.com/SkriptLang/Skript) language. Skript is a plugin for Minecraft multiplayer servers that allows easy scripting of server modifications. The IDE provides auto-completion, syntax highlighting, a web technology based editor and many more things.
 
-This project is a fork of the original [Sk-IDE](https://github.com/liz3/SkIDE) by liz3.
+This project is a fork of the original [SkIDE](https://github.com/liz3/SkIDE) by liz3.
 
 # Requirements
  - Java Development Kit (JDK) version 26
