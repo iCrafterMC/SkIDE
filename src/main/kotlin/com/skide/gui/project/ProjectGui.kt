@@ -544,8 +544,7 @@ class ProjectGuiEventListeners(private val openProjectGuiManager: OpenProjectGui
     private fun setupBrowser() {
 
         filesTab.first.onSelectionChangedProperty().addListener { _, _, _ ->
-
-            //TODO
+            if (filesTab.first.isSelected) updateProjectFilesTreeView()
         }
 
         filesTab.second.setOnMouseReleased { ev ->

@@ -4,6 +4,7 @@ import com.skide.include.MethodParameter
 import com.skide.include.NodeType
 import com.skide.utils.EditorUtils
 import netscape.javascript.JSObject
+import netscape.javascript.asJSObject
 import java.util.*
 
 class ReferenceProvider(val manager: CodeManager) {
@@ -11,7 +12,7 @@ class ReferenceProvider(val manager: CodeManager) {
 
     private fun getObj(line: Int, col: Int, len: Int, model: Any): JSObject {
         val obj = manager.area.getObject()
-        obj.setMember("uri", (model as JSObject).getMember("uri"))
+        obj.setMember("uri", (model.asJSObject()).getMember("uri"))
         obj.setMember("range", manager.area.createObjectFromMap(hashMapOf(Pair("startLineNumber", line),
                 Pair("endLineNumber", line), Pair("startColumn", col), Pair("endColumn", (col + len)))))
         return obj

@@ -25,6 +25,7 @@ import javafx.stage.Modality
 import javafx.stage.Stage
 import javafx.stage.StageStyle
 import netscape.javascript.JSObject
+import netscape.javascript.asJSObject
 import java.io.File
 
 
@@ -78,14 +79,14 @@ class EventHandler(private val area: CodeArea) {
     }
 
     fun findReferences(model: Any, position: Any, context: Any): Any {
-        val lineNumber = (position as JSObject).getMember("lineNumber") as Int
-        val column = position.getMember("column") as Int
+        val lineNumber = (position.asJSObject()).getMember("lineNumber") as Int
+        val column = position.asJSObject().getMember("column") as Int
         val word = area.getWordAtPosition(lineNumber, column)
         return area.codeManager.referenceProvider.findReference(model, lineNumber, word, area.getArray())
     }
 
     fun gotoCall(model: Any, position: Any, token: Any): Any {
-        val pos = position as JSObject
+        val pos = position.asJSObject()
         val lineNumber = pos.getMember("lineNumber") as Int
         val column = pos.getMember("column") as Int
         val result = area.openFileHolder.codeManager.definitonFinder.search(lineNumber, area.getWordAtPosition(lineNumber, column))
@@ -118,7 +119,7 @@ class EventHandler(private val area: CodeArea) {
                 Pair("endLineNumber", result.line),
                 Pair("startColumn", result.column),
                 Pair("endColumn", result.column))))
-        obj.setMember("uri", (model as JSObject).getMember("uri"))
+        obj.setMember("uri", (model.asJSObject()).getMember("uri"))
         return obj
     }
 
@@ -136,8 +137,8 @@ class EventHandler(private val area: CodeArea) {
     }
 
     fun contextMenuEmit(ev: JSObject) {
-        if (((ev.getMember("event") as JSObject).getMember("leftButton") as Boolean) &&
-                !((ev.getMember("event") as JSObject).getMember("rightButton") as Boolean)) return
+        if (((ev.getMember("event").asJSObject()).getMember("leftButton") as Boolean) &&
+                !((ev.getMember("event").asJSObject()).getMember("rightButton") as Boolean)) return
 
         val selection = area.getSelection()
     }
@@ -182,13 +183,13 @@ class CodeArea(val coreManager: CoreManager, val file: File, val rdy: (CodeArea)
         }
     }
 
-    fun getArray() = engine.executeScript("getArr();") as JSObject
-    fun getObject() = engine.executeScript("getObj();") as JSObject
-    fun getFunction() = engine.executeScript("getFunc();") as JSObject
-    fun getWindow() = engine.executeScript("window") as JSObject
-    fun getModel() = engine.executeScript("editor.getModel()") as JSObject
+    fun getArray() = engine.executeScript("getArr();").asJSObject()
+    fun getObject() = engine.executeScript("getObj();").asJSObject()
+    fun getFunction() = engine.executeScript("getFunc();").asJSObject()
+    fun getWindow() = engine.executeScript("window").asJSObject()
+    fun getModel() = engine.executeScript("editor.getModel()").asJSObject()
     private fun startEditor(options: Any) {
-        editor = getWindow().call("startEditor", options) as JSObject
+        editor = getWindow().call("startEditor", options).asJSObject()
     }
 
     fun copySelectionToClipboard() {
@@ -221,6 +222,10 @@ class CodeArea(val coreManager: CoreManager, val file: File, val rdy: (CodeArea)
     init {
 
         engine = view.engine
+        view.isMouseTransparent = true
+        view.sceneProperty().addListener { _, _, newScene ->
+            view.isMouseTransparent = newScene == null
+        }
         view.setOnKeyPressed { ev ->
 
             if (ev.code == KeyCode.ESCAPE) {
@@ -278,7 +283,7 @@ class CodeArea(val coreManager: CoreManager, val file: File, val rdy: (CodeArea)
                 val win = getWindow()
                 val cbHook = CallbackHook {
 
-                    val settings = engine.executeScript("getDefaultOptions();") as JSObject
+                    val settings = engine.executeScript("getDefaultOptions();").asJSObject()
                     settings.setMember("fontSize", coreManager.configManager.get("font_size"))
                     settings.setMember("language", extensionToLang(file.name.split(".").last()))
                     val scheme = coreManager.configManager.get("color_scheme")
@@ -409,7 +414,7 @@ class CodeArea(val coreManager: CoreManager, val file: File, val rdy: (CodeArea)
         val cont = getWindow().call("addCondition", key, keyId)
 
         val command = EditorCommandBinder(key, cb)
-        command.instance = cont as JSObject
+        command.instance = cont.asJSObject()
         editorCommands[key] = command
     }
 
@@ -448,7 +453,7 @@ class CodeArea(val coreManager: CoreManager, val file: File, val rdy: (CodeArea)
         if (!editorActions.containsKey(id)) return
         val action = editorActions[id]
         if (action != null) {
-            (action.instance as JSObject).call("dispose")
+            (action.instance.asJSObject()).call("dispose")
             editorActions.remove(id)
         }
     }
@@ -458,7 +463,7 @@ class CodeArea(val coreManager: CoreManager, val file: File, val rdy: (CodeArea)
                          val startColumn: Int, val startLineNumber: Int)
 
     fun getSelection(): Selection {
-        val result = editor.call("getSelection") as JSObject
+        val result = editor.call("getSelection").asJSObject()
         return Selection(
                 result.getMember("endColumn") as Int,
                 result.getMember("endLineNumber") as Int,
@@ -475,7 +480,7 @@ class CodeArea(val coreManager: CoreManager, val file: File, val rdy: (CodeArea)
 
     fun getWordAtPosition(line: Int = getCurrentLine(), column: Int = getCurrentColumn()): String {
         return (getModel().call("getWordAtPosition", createObjectFromMap(hashMapOf(Pair("lineNumber", line),
-                Pair("column", column)))) as JSObject).getMember("word") as String
+                Pair("column", column)))).asJSObject()).getMember("word") as String
     }
 
 
@@ -483,7 +488,7 @@ class CodeArea(val coreManager: CoreManager, val file: File, val rdy: (CodeArea)
 
     fun getWordUntilPosition(line: Int = getCurrentLine(), pos: Int = getCurrentColumn()): WordAtPos {
         val result = getModel().call("getWordUntilPosition",
-                createObjectFromMap(hashMapOf(Pair("column", pos), Pair("lineNumber", line)))) as JSObject
+                createObjectFromMap(hashMapOf(Pair("column", pos), Pair("lineNumber", line)))).asJSObject()
 
         return WordAtPos(result.getMember("word") as String, result.getMember("endColumn") as Int, result.getMember("startColumn") as Int)
     }

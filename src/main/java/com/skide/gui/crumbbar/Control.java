@@ -21,7 +21,10 @@ public class Control extends javafx.scene.control.Control {
          * For more information please see RT-40658
          */
         if (stylesheet == null) {
-            stylesheet = clazz.getResource(fileName).toExternalForm();
+            var url = clazz.getResource(fileName);
+            if (url != null) {
+                stylesheet = url.toExternalForm();
+            }
         }
 
         return stylesheet;

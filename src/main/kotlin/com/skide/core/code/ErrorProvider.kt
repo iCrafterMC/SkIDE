@@ -4,6 +4,7 @@ import com.skide.include.*
 import com.skide.utils.EditorUtils
 import javafx.application.Platform
 import netscape.javascript.JSObject
+import netscape.javascript.asJSObject
 import java.lang.Exception
 import java.util.*
 import java.util.regex.Pattern
@@ -361,7 +362,7 @@ class ErrorProvider(val manager: CodeManager) {
                     Pair("severity", it.severity.num))))
             counter++
         }
-        val obj = area.engine.executeScript("monaco.editor") as JSObject
+        val obj = area.engine.executeScript("monaco.editor").asJSObject()
         obj.call("setModelMarkers", area.getModel(), area.getModel().call("getModeId"), array)
 
     }

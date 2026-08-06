@@ -18,8 +18,6 @@ import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import javafx.stage.Stage
 import javafx.stage.StageStyle
-import javafx.util.Duration
-import org.controlsfx.control.Notifications
 
 
 class CoreManager {
@@ -30,7 +28,6 @@ class CoreManager {
     lateinit var projectManager: ProjectManager
     lateinit var serverManager: ServerManager
     lateinit var resourceManager: ResourceManager
-    lateinit var googleAnalytics: GoogleAnalytics
     lateinit var saver: AutoSaver
     lateinit var sockServer: SocketManager
     lateinit var snippetManager: SnippetManager
@@ -42,7 +39,7 @@ class CoreManager {
         args.forEach {
             //first lets set the debug level
             if (it.startsWith("--debug")) {
-                debugLevel = DebugLevel.valueOf(it.split("=")[1].toUpperCase())
+                debugLevel = DebugLevel.valueOf(it.split("=")[1].uppercase())
             }
         }
         if (System.getProperty("skide.mode") != null && System.getProperty("skide.mode") == "prod")
@@ -64,20 +61,6 @@ class CoreManager {
         schemesManager = SchemesManager(me)
         debugger.syserr.core = me
         sockServer.start()
-    }
-
-    fun googleAnalyticsSetup(me: CoreManager): Boolean {
-        var r = false
-        googleAnalytics = GoogleAnalytics(me)
-        if (configManager.get("analytics") == "") {
-            r = true
-            configManager.set("analytics", "true")
-        } else {
-            if (configManager.get("analytics") == "true" && Info.prodMode) {
-                googleAnalytics.start()
-            }
-        }
-        return r
     }
 
     private fun welcomeWindow(me: CoreManager, configLoadResult: ConfigLoadResult) {
@@ -108,7 +91,6 @@ class CoreManager {
             controller.view.image = Image(javaClass.getResource("/images/splash.png").toExternalForm())
             controller.logoView.image = Image(javaClass.getResource("/images/21xayah.png").toExternalForm())
             stage.show()
-            var analyticInf: Boolean
             val task = object : Task<Void>() {
                 @Throws(Exception::class)
                 override fun call(): Void? {
@@ -146,15 +128,8 @@ class CoreManager {
                         Prompts.configManager = configManager
 
                         Platform.runLater {
-                            analyticInf = googleAnalyticsSetup(me)
                             stage.close()
                             welcomeWindow(me, configLoadResult)
-                            if (analyticInf) {
-                                Notifications.create()
-                                        .title("Analytics")
-                                        .text("Sk-IDE is collecting: When you start the IDE and when you open a Project(ANY INFORMATION ABOUT THE PROJECT IS NOT INCLUDED). I do this only for statistics. If you still don´t want it, disable it in the Settings!").darkStyle().hideAfter(Duration.INDEFINITE)
-                                        .show()
-                            }
                         }
                     } catch (e: Exception) {
                         e.printStackTrace()

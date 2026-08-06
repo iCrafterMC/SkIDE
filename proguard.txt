@@ -21,7 +21,6 @@
 -keep class intellij.** { *; }
 -keep class org.json.** { *; }
 -keep class org.junit.** { *; }
--keep class com.brsanthu.** { *; }
 -keep class com.fasterxml.** { *; }
 -keep class com.pty4j.** { *; }
 -keep class com.sun.** { *; }

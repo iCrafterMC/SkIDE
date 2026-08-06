@@ -202,7 +202,7 @@ class AutoCompleteCompute(val manager: CodeManager, val project: OpenFileHolder)
                     addon.forEach { item ->
                         if (item.type != DocType.EVENT) {
                             val name = item.name
-                            var adder = (if (item.pattern == "") item.name.toLowerCase() else item.pattern).replace("\n", "").replace("\r", "")
+                            var adder = (if (item.pattern == "") item.name.lowercase() else item.pattern).replace("\n", "").replace("\r", "")
                             if (item.type == DocType.CONDITION) if (!lineContent.contains("if ")) adder = "if $adder"
                             if (item.type == DocType.CONDITION) adder += ":"
                             addSuggestionToObject(AutoCompleteItem(area, name, CompletionType.MODULE, adder, commandId = "general_auto_complete_finish", detail = "${item.type} - ${item.addon.name}"), array, count)
@@ -217,7 +217,7 @@ class AutoCompleteCompute(val manager: CodeManager, val project: OpenFileHolder)
                 skript.forEach { item ->
                     if (item.type != DocType.EVENT) {
                         val name = item.name
-                        var adder = (if (item.pattern == "") item.name.toLowerCase() else item.pattern).replace("\n", "").replace("\r", "")
+                        var adder = (if (item.pattern == "") item.name.lowercase() else item.pattern).replace("\n", "").replace("\r", "")
                         if (item.type == DocType.CONDITION) if (!lineContent.contains("if ")) adder = "if $adder"
                         if (item.type == DocType.CONDITION) adder += ":"
                         addSuggestionToObject(AutoCompleteItem(area, name, CompletionType.MODULE, adder, commandId = "general_auto_complete_finish", detail = "${item.type} - ${item.addon.name}", documentation = item.description), array, count)

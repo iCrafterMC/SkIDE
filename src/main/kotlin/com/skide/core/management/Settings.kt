@@ -2,7 +2,6 @@ package com.skide.core.management
 
 import com.skide.CoreManager
 import com.skide.Info
-import com.skide.gui.LinkOpener
 import com.skide.utils.FileReturnResult
 import com.skide.utils.readFile
 import com.skide.utils.restart
@@ -11,7 +10,6 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
-import javax.swing.JOptionPane
 
 
 class PointerHolder(val id: Long, val name: String, val path: String)
@@ -39,7 +37,6 @@ class ConfigManager(val coreManager: CoreManager) {
         }
 
     private val versionsFile = File(File(CoreManager::class.java.protectionDomain.codeSource.location.toURI()).parent, "versions")
-    private val checkFile = File(File(CoreManager::class.java.protectionDomain.codeSource.location.toURI()).parent, "check")
     private var installedVersion = ""
     var update = false
     var betaChannel = false
@@ -63,14 +60,6 @@ class ConfigManager(val coreManager: CoreManager) {
         }
 
 
-    private fun oldVerCheck() {
-        if (!checkFile.exists() && Info.prodMode) {
-            JOptionPane.showMessageDialog(null, "Please re install SkIDE From: https://skide.21xayah.com, major changes have been made which require a re install!")
-            LinkOpener().open("https://skide.21xayah.com/#download")
-            System.exit(0)
-        }
-    }
-
     private val configFile = File(rootFolder, "settings.skide")
     private val projectsFile = File(rootFolder, "projects.skide")
     private val serversFile = File(rootFolder, "servers.skide")
@@ -81,7 +70,6 @@ class ConfigManager(val coreManager: CoreManager) {
     val projects = HashMap<Long, PointerHolder>()
     val servers = HashMap<Long, PointerHolder>()
     fun load(): ConfigLoadResult {
-        oldVerCheck()
         loaded = if (loaded) return ConfigLoadResult.SUCCESS else true
         var firstRun = false
         if (Info.prodMode) loadUpdateFile()

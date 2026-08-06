@@ -66,14 +66,6 @@ class ProjectManager(val coreManager: CoreManager) {
 
         if (projectConfig.first == ProjectConfigurationLoadResult.SUCCESS && projectConfig.second != null) {
 
-            if (coreManager.googleAnalytics.enabled) {
-                coreManager.googleAnalytics.ga.pageView()
-                        .documentTitle("Sk-IDE Project")
-                        .documentPath("/project")
-                        .customDimension(1, "Product")
-                        .customDimension(1, "Version")
-                        .send()
-            }
             openProjects.addElement(OpenProject(projectConfig.second!!, coreManager))
         }
     }
@@ -122,7 +114,7 @@ class ProjectManager(val coreManager: CoreManager) {
 
         val possOldConfigFile = File(projectFolder, ".project.skide")
         if (possOldConfigFile.exists()) {
-            //TODO inform user
+            println("[ProjectManager] Existing project config found at ${possOldConfigFile.absolutePath} — overwriting with imported project settings")
             possOldConfigFile.delete()
         }
         val obj = JSONObject()

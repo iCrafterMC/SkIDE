@@ -21,6 +21,7 @@ import javafx.stage.Modality
 import javafx.stage.Stage
 import javafx.stage.StageStyle
 import netscape.javascript.JSObject
+import netscape.javascript.asJSObject
 import java.awt.MouseInfo
 
 
@@ -130,6 +131,12 @@ class ThemesGuiHandler(val ctrl: GeneralSettingsGUIController, val coreManager: 
     private val vs = ColorScheme("vs", "", HashMap(), HashMap())
     private val vsDark = ColorScheme("vs-dark", "", HashMap(), HashMap())
     val engine = ctrl.schemesPreviewView.engine!!
+    init {
+        ctrl.schemesPreviewView.isMouseTransparent = true
+        ctrl.schemesPreviewView.sceneProperty().addListener { _, _, newScene ->
+            ctrl.schemesPreviewView.isMouseTransparent = newScene == null
+        }
+    }
     private val updateWatcher = ChangeWatcher(650) {
         Platform.runLater {
             reloadPreview()
@@ -144,7 +151,7 @@ class ThemesGuiHandler(val ctrl: GeneralSettingsGUIController, val coreManager: 
         engine.loadWorker.stateProperty().addListener { _, _, newValue ->
             runAsserted { scheme ->
                 if (newValue == Worker.State.SUCCEEDED) {
-                    val window = engine.executeScript("window") as JSObject
+                    val window = engine.executeScript("window").asJSObject()
                     window.setMember("demo", DemoReady {
                         val theme = getTheme(scheme)
 
@@ -176,14 +183,14 @@ class ThemesGuiHandler(val ctrl: GeneralSettingsGUIController, val coreManager: 
     }
 
     private fun getTheme(scheme: ColorScheme): Pair<JSObject, JSObject> {
-        val colors = engine.executeScript("getObj();") as JSObject
-        val rules = engine.executeScript("getArr()") as JSObject
+        val colors = engine.executeScript("getObj();").asJSObject()
+        val rules = engine.executeScript("getArr()").asJSObject()
         for (c in scheme.colors) {
             colors.setMember(c.key, c.value)
         }
         var count = 0
         for (rule in scheme.rules) {
-            val obj = engine.executeScript("getObj()") as JSObject
+            val obj = engine.executeScript("getObj()").asJSObject()
             obj.setMember("token", rule.key)
             if (rule.value.foreground.isNotEmpty())
                 obj.setMember("foreground", rule.value.foreground)

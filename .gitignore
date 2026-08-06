@@ -5,6 +5,7 @@ target/
 out/
 build/
 .gradle/
+.kotlin/
 
 # snapcraft
 parts
@@ -19,3 +20,6 @@ bin
 .project
 .classpath
 
+
+# nur lokal fuer Release-Publishing (nicht im Repo)
+build-exe.bat

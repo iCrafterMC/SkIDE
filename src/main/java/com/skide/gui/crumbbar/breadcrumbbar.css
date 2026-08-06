@@ -1,0 +1,10 @@
+.bread-crumb-bar {
+    -fx-padding: 4 0 4 8;
+}
+.bread-crumb-bar > .button {
+    -fx-background-color: transparent;
+    -fx-padding: 2 4 2 4;
+}
+.bread-crumb-bar > .button:hover {
+    -fx-underline: true;
+}

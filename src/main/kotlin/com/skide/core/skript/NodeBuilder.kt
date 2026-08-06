@@ -40,7 +40,7 @@ class NodeBuilder(val node: Node) {
         var theType = NodeType.UNDEFINED
         if (parent != null && parent.nodeType == NodeType.OPTIONS) {
             NodeType.OPTION
-        } else if (content.toLowerCase().startsWith("options:")) {
+        } else if (content.lowercase().startsWith("options:")) {
             theType = NodeType.OPTIONS
         }
         val matcher = Pattern.compile("[^\\>\\[( {]+\\(.*\\)(?!.*\")").matcher(content)
@@ -48,12 +48,12 @@ class NodeBuilder(val node: Node) {
             theType = NodeType.FUNCTION_CALL
             fields["name"] = matcher.group().split("(").first().trim()
         }
-        if (content.toLowerCase().startsWith("function ")) {
+        if (content.lowercase().startsWith("function ")) {
             //parse method stuff
             parseMethodParameters()
             theType = NodeType.FUNCTION
         }
-        if (content.toLowerCase().startsWith("every ")) {
+        if (content.lowercase().startsWith("every ")) {
             theType = NodeType.INTERVAL
         }
 
@@ -96,39 +96,39 @@ class NodeBuilder(val node: Node) {
             }
         }
 
-        if (content.toLowerCase().startsWith("command ")) {
+        if (content.lowercase().startsWith("command ")) {
             fields.put("name", content.split(" ")[1].replace("/", "").replace(":", ""))
             theType = NodeType.COMMAND
         }
-        if (content.toLowerCase().startsWith("#")) {
+        if (content.lowercase().startsWith("#")) {
             theType = NodeType.COMMENT
         }
-        if (content.toLowerCase().startsWith("if ")) {
+        if (content.lowercase().startsWith("if ")) {
             theType = NodeType.IF_STATEMENT
         }
-        if (content.toLowerCase().startsWith("else ") || content.toLowerCase().startsWith("else if")) {
+        if (content.lowercase().startsWith("else ") || content.lowercase().startsWith("else if")) {
             theType = NodeType.ELSE_STATEMENT
         }
-        if (content.toLowerCase().startsWith("loop ")) {
+        if (content.lowercase().startsWith("loop ")) {
             theType = NodeType.LOOP
         }
-        if (content.toLowerCase().startsWith("while ")) {
+        if (content.lowercase().startsWith("while ")) {
             theType = NodeType.LOOP
         }
-        if (content.toLowerCase().startsWith("trigger:")) {
+        if (content.lowercase().startsWith("trigger:")) {
             theType = NodeType.TRIGGER
         }
         /*
-         if (content.toLowerCase().startsWith("class ")) {
+         if (content.lowercase().startsWith("class ")) {
              fields.put("name", content.split(" ")[1].replace(":", ""))
              theType = NodeType.CLASS
 
          }
          */
-        if (content.toLowerCase().startsWith("stop ")) {
+        if (content.lowercase().startsWith("stop ")) {
             theType = NodeType.STOP
         }
-        if (content.toLowerCase().startsWith("set {")) {
+        if (content.lowercase().startsWith("set {")) {
             try {
                 //get var name
                 val pattern = Pattern.compile("\\{([^{}]|%\\{|}%)+}").matcher(content)

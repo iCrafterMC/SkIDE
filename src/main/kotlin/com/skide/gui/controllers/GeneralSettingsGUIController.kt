@@ -114,8 +114,6 @@ class GeneralSettingsGUIController {
     lateinit var metaDataGenerateCheck: CheckBox
     @FXML
     lateinit var settingsUpdateDataCheck: CheckBox
-    @FXML
-    lateinit var analyiticsCheck: CheckBox
 
     @FXML
     lateinit var updateCheck: CheckBox

@@ -25,7 +25,7 @@ class ResourceManager(val coreManager: CoreManager) {
     val skriptVersions = Vector<String>()
     private val addonsFile = File(coreManager.configManager.rootFolder, "addons.json")
     private val addonsCopyFile = File(coreManager.configManager.rootFolder, "addons-copy.json")
-    private val skriptVersionsFile = File(coreManager.configManager.rootFolder, "skript-vers.json")
+    private val skriptVersionsFile = File(coreManager.configManager.rootFolder, "skript.json")
     private val skriptVersionsCopyFile = File(coreManager.configManager.rootFolder, "skript-vers-copy.json")
     private val skriptVersionsFolder = File(coreManager.configManager.rootFolder, "skript-versions")
 
@@ -96,6 +96,18 @@ class ResourceManager(val coreManager: CoreManager) {
         addons[name]?.loaded = true
     }
 
+    private fun normalizeSkriptVersionsFile() {
+        try {
+            val raw = readFile(skriptVersionsFile.absolutePath).second
+            val obj = JSONObject(raw)
+            if (obj.has("data")) {
+                val data = obj.getJSONArray("data")
+                writeFile(data.toString(2).toByteArray(), skriptVersionsFile.absolutePath)
+            }
+        } catch (_: Exception) {
+        }
+    }
+
     private fun processWithBackUp(f1: File, f2: File, array: Boolean, cb: (Any) -> Unit): Boolean {
         try {
             val json = if (array) JSONArray(readFile(f1).second) else JSONObject(readFile(f1).second)
@@ -132,8 +144,9 @@ class ResourceManager(val coreManager: CoreManager) {
                 callback(total, 2, "Downloading: https://skripthub.net/api/v1/addon/")
                 downloadFile("https://skripthub.net/api/v1/addon/", addonsFile.absolutePath)
 
-                callback(total, 4, "Downloading: https://skripttools.net/api.php?t=skript&action=getlist")
-                downloadFile("https://skripttools.net/api.php?t=skript&action=getlist", skriptVersionsFile.absolutePath)
+                callback(total, 4, "Downloading: https://api.skripttools.net/v4/skript")
+                downloadFile("https://api.skripttools.net/v4/skript", skriptVersionsFile.absolutePath)
+                normalizeSkriptVersionsFile()
 
                 callback(total, 5, "Downloading: https://skripthub.net/api/v1/addonsyntaxlist/")
                 downloadFile("https://skripthub.net/api/v1/addonsyntaxlist/", skHubFile.absolutePath)

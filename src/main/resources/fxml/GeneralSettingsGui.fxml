@@ -32,7 +32,6 @@
                                                 <CheckBox fx:id="metaDataGenerateCheck" mnemonicParsing="false" text="Info Generate on new File" />
                                                 <CheckBox fx:id="settingsUpdateDataCheck" mnemonicParsing="false" text="Update data on restart" />
                                                 <CheckBox fx:id="webViewDebuggerCheck" mnemonicParsing="false" text="Enable Editor Debugger" />
-                                                <CheckBox fx:id="analyiticsCheck" mnemonicParsing="false" text="Send Metrics via Google Analytics" />
                                                 <CheckBox fx:id="settingsAutoCompleteCheck" mnemonicParsing="false" text="Enable Autocomplete" />
                                                 <CheckBox fx:id="settingsAutoCompleteSkriptCheck" layoutX="10.0" layoutY="144.0" mnemonicParsing="false" text="Enable Skript Syntax Autocomplete" />
                                                 <CheckBox fx:id="settingsAutoCompleteAddonCheck" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" text="Enable Addon Syntax Autocomplete" />

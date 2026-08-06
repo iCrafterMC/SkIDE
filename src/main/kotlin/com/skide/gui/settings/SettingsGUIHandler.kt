@@ -44,7 +44,6 @@ class SettingsGUIHandler(val ctrl: GeneralSettingsGUIController, val coreManager
         coreManager.configManager.set("generate_meta_data", "${ctrl.metaDataGenerateCheck.isSelected}")
         coreManager.configManager.set("meta_update", "${ctrl.settingsUpdateDataCheck.isSelected}")
         coreManager.configManager.set("webview_debug", "${ctrl.webViewDebuggerCheck.isSelected}")
-        coreManager.configManager.set("analytics", "${ctrl.analyiticsCheck.isSelected}")
         coreManager.configManager.set("global_font_size", ctrl.globalFontSize.text)
         coreManager.configManager.set("jre_path", ctrl.generalJrePathField.text)
 
@@ -206,7 +205,6 @@ class SettingsGUIHandler(val ctrl: GeneralSettingsGUIController, val coreManager
         ctrl.metaDataGenerateCheck.isSelected = coreManager.configManager.get("generate_meta_data") == "true"
         ctrl.settingsUpdateDataCheck.isSelected = coreManager.configManager.get("meta_update") == "true"
         ctrl.webViewDebuggerCheck.isSelected = coreManager.configManager.get("webview_debug") == "true"
-        ctrl.analyiticsCheck.isSelected = coreManager.configManager.get("analytics") == "true"
         ctrl.generalJrePathField.text = coreManager.configManager.get("jre_path").toString()
         if (coreManager.configManager.get("global_font_size").toString().isNotEmpty())
             ctrl.globalFontSize.text = coreManager.configManager.get("global_font_size").toString()

@@ -86,13 +86,13 @@ object GUIManager {
             LinkOpener().open("https://discord.gg/Ex8d34E")
         }
         controller.gitlabBtn.setOnAction {
-            LinkOpener().open("https://github.com/liz3/SkIDE/issues")
+            LinkOpener().open("https://github.com/iCrafterMC/SkIDE/issues")
 
         }
         controller.donateBtn.setOnAction {
           LinkOpener().open("https://paypal.me/liz3de")
         }
-        controller.infoTextLabel.text = "Developed and maintained by Liz3\nContributors: NickAc, 4rno, eyesniper2, NanoDankster, Nicofisi, Scrumplex"
+        controller.infoTextLabel.text = "Originally developed by Liz3\nOriginal contributors: NickAc, 4rno, eyesniper2, NanoDankster, Nicofisi, Scrumplex"
         win.stage.show()
     }
 

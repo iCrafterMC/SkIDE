@@ -92,12 +92,19 @@ class SettingsGuiEventListener(val gui: SettingsGui, val ctrl: ProjectSettingsGU
         if (!loaded) {
             loaded = true
 
-            ctrl.skriptVersionComboBox.isDisable = true
+            ctrl.skriptVersionComboBox.items.addAll(resourceManager.skriptVersions)
             if (ctrl.skriptVersionComboBox.items.contains(gui.project.skriptVersion))
                 ctrl.skriptVersionComboBox.selectionModel.select(gui.project.skriptVersion)
 
             ctrl.plListView.selectionModel.selectedItemProperty().addListener { _, _, _ ->
-
+                val item = currItem()
+                if (item != null) {
+                    ctrl.plVersionsComboBox.items.setAll(item.versions.keys)
+                    ctrl.plVersionsComboBox.isDisable = false
+                } else {
+                    ctrl.plVersionsComboBox.items.clear()
+                    ctrl.plVersionsComboBox.isDisable = true
+                }
                 updateState()
             }
             ctrl.enableSupportCheckBox.setOnAction {
@@ -123,7 +130,6 @@ class SettingsGuiEventListener(val gui: SettingsGui, val ctrl: ProjectSettingsGU
                     changes.addElement(Pair(currItem(), SettingsChangeType.ADDON_REMOVE))
                 }
             }
-            ctrl.plVersionsComboBox.isDisable = true
             ctrl.enableSupportCheckBox.isDisable = true
             ctrl.applyBtn.setOnAction {
                 performChanges()

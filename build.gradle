@@ -1,15 +1,15 @@
-import java.nio.file.Paths
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 buildscript {
-    ext.kotlin_version = '1.3.61'
+    ext.kotlin_version = '2.4.0'
 
     repositories {
         mavenCentral()
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'org.unbroken-dome.gradle-plugins:gradle-testsets-plugin:1.3.2'
-        classpath 'net.sf.proguard:proguard-gradle:5.3.3'
     }
 }
 
@@ -17,58 +17,153 @@ plugins {
     id 'java'
     id 'idea'
     id 'application'
-    id 'com.github.johnrengelman.shadow' version '4.0.3'
+    id 'com.gradleup.shadow' version '9.6.1'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
 }
 apply plugin: 'kotlin'
 apply plugin: 'application'
 
-group = 'com.skide'
-version = "2019.2"
-mainClassName = 'com.skide.MainKt'
+javafx {
+    version = '26.0.2'
+    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.web', 'javafx.swing', 'javafx.media' ]
+}
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+project.group = 'com.skide'
+project.version = '2026.8'
+
+application {
+    mainClass = 'com.skide.MainKt'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_26
+    targetCompatibility = JavaVersion.VERSION_26
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(26)
+    }
+}
+
+tasks.withType(KotlinJvmCompile).configureEach {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_26)
+        languageVersion.set(KotlinVersion.KOTLIN_2_2)
+    }
+}
+
+sourceSets {
+    create('shim').kotlin.srcDirs = ['src/shim/kotlin']
+    main.kotlin.exclude('netscape/javascript/**')
+}
+
+def shimModuleDir = layout.buildDirectory.dir('jdk-jsobject-module')
+
+// Compile module-info.java separately (outside any source set to avoid Kotlin compiler interference)
+def shimModuleInfoDir = layout.buildDirectory.dir('jdk-jsobject-module-classes')
+tasks.register('compileShimModuleInfo', JavaCompile) {
+    dependsOn compileShimKotlin
+    source = fileTree('src/shim/module-info')
+    destinationDirectory = shimModuleInfoDir
+    classpath = files()
+    javaCompiler = javaToolchains.compilerFor {
+        languageVersion = java.toolchain.languageVersion
+    }
+    options.release = 26
+    options.compilerArgs.addAll([
+        '--patch-module', "jdk.jsobject=${sourceSets.shim.output.asPath}"
+    ])
+}
+
+tasks.register('shimModuleJar', Jar) {
+    dependsOn compileShimKotlin, compileShimModuleInfo
+    archiveFileName = 'jdk.jsobject.jar'
+    destinationDirectory = shimModuleDir
+    from sourceSets.shim.output
+    from shimModuleInfoDir
+}
+
+// Main source set compiles against the shim output classes
+sourceSets.main.compileClasspath = sourceSets.main.compileClasspath.plus(sourceSets.shim.output)
+
+// Helper to get module JAR path for runtime
+def shimModulePath = provider { shimModuleDir.get().file('jdk.jsobject.jar').asFile.path }
+
+['run', 'test', 'startScripts', 'shadowJar'].each { taskName ->
+    tasks.named(taskName) {
+        dependsOn shimModuleJar
+    }
+}
+
+// Inject our shim JAR via jvmArgumentProviders
+// Tell JavaFX plugin not to set up module path (we'll do it ourselves)
+tasks.named('run', JavaExec).configure { runTask ->
+    dependsOn shimModuleJar
+    // This tells the JavaFX plugin to skip its module path setup
+    runTask.extensions.add('moduleOptions', [:])
+
+    // Add our own module path provider
+    runTask.jvmArgumentProviders.add(new CommandLineArgumentProvider() {
+        @Override
+        Iterable<String> asArguments() {
+            def shimJar = shimModulePath.get()
+            // Collect JavaFX module JARs from runtime classpath for our --module-path
+            def fxJars = configurations.runtimeClasspath.filter { f ->
+                f.isFile() && f.name.startsWith('javafx-') && f.name.endsWith('.jar')
+            }
+            def mp = shimJar + File.pathSeparator + fxJars.asPath
+            return Arrays.asList(
+                '--module-path', mp,
+                '--add-modules', 'jdk.jsobject,javafx.controls,javafx.fxml,javafx.web,javafx.swing,javafx.media',
+                '--enable-native-access', 'javafx.graphics,javafx.web,ALL-UNNAMED'
+            )
+        }
+    })
+
+    // Remove JavaFX JARs from classpath (they'll be on module path)
+    runTask.doFirst {
+        setClasspath(classpath.filter { f ->
+            !(f.isFile() && f.name.startsWith('javafx-') && f.name.endsWith('.jar'))
+        })
+    }
+}
+
+
 
 repositories {
     mavenCentral()
-    flatDir {
-        dirs 'static-libs'
-    }
 }
+configurations.configureEach {
+    exclude group: 'org.openjfx', module: 'jdk-jsobject'
+}
+
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation 'org.controlsfx:controlsfx:8.40.14'
-    implementation "org.json:json:20180813"
-    implementation name: 'analytics'
-    implementation name: 'terminalfx-1.3'
-    implementation 'com.jcraft:jsch:0.1.54'
-    implementation 'commons-net:commons-net:3.6'
-    testImplementation group: 'junit', name: 'junit', version: '4.12'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+    implementation 'org.controlsfx:controlsfx:11.2.3'
+    implementation "org.json:json:20260522"
+    implementation files('static-libs/terminalfx-1.3.jar')
+    implementation 'com.github.mwiede:jsch:2.28.3'
+    implementation 'commons-net:commons-net:3.13.0'
+    testImplementation 'junit:junit:4.13.2'
     testImplementation "org.jetbrains.kotlin:kotlin-test"
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit"
-}
-compileKotlin {
-    kotlinOptions.jvmTarget = project.targetCompatibility
-}
-compileTestKotlin {
-    kotlinOptions.jvmTarget = project.targetCompatibility
 }
 shadowJar {
     mergeServiceFiles()
     exclude 'META-INF/*.DSA'
     exclude 'META-INF/*.RSA'
-    archiveName = "ide.jar"
+    archiveFileName = "ide.jar"
+    from sourceSets.shim.output
 }
 jar {
-    archiveName = "ide-core.jar"
+    archiveFileName = "ide-core.jar"
     manifest {
-        attributes 'Main-Class': mainClassName
-        attributes 'Name': name
-        attributes 'Specification-Title': name
+        attributes 'Main-Class': application.mainClass
+        attributes 'Name': project.name
+        attributes 'Specification-Title': project.name
         attributes 'Specification-Version': version
-        attributes 'Specification-Vendor': name
-        attributes 'Implementation-Title': name
+        attributes 'Specification-Vendor': project.name
+        attributes 'Implementation-Title': project.name
         attributes 'Implementation-Version': version
-        attributes 'Implementation-Vendor': name
+        attributes 'Implementation-Vendor': project.name
     }
 }

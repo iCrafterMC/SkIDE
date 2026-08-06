@@ -14,6 +14,7 @@ import javafx.stage.FileChooser
 import javafx.stage.Stage
 import javafx.stage.StageStyle
 import netscape.javascript.JSObject
+import netscape.javascript.asJSObject
 import java.io.File
 import java.util.*
 
@@ -56,13 +57,13 @@ class WebViewDebugger(val area: CodeArea) {
     lateinit var consoleProxy: ConsoleProxy
 
     private fun isArray(obj: JSObject): Boolean {
-        val window = area.engine.executeScript("window.Array") as JSObject
+        val window = area.engine.executeScript("window.Array").asJSObject()
         return window.call("isArray", obj) as Boolean
     }
 
     private fun getKeys(obj: JSObject): Vector<String> {
         val list = Vector<String>()
-        val window = area.engine.executeScript("window.Object") as JSObject
+        val window = area.engine.executeScript("window.Object").asJSObject()
         val result = window.call("keys", obj)
 
         if (result is JSObject) {
@@ -207,7 +208,7 @@ class WebViewDebugger(val area: CodeArea) {
             Platform.runLater {
                 setupStage()
                 consoleProxy = ConsoleProxy(this)
-                val window = engine.executeScript("window") as JSObject
+                val window = engine.executeScript("window").asJSObject()
                 window.setMember("xlogger", consoleProxy)
                 stage.show()
             }
