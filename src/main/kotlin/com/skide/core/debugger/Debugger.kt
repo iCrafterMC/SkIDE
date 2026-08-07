@@ -126,11 +126,8 @@ class SystemErr : PrintStream(System.err) {
                     }
                     ctrl.contentArea.text = theError
 
-                    ctrl.discordLink.setOnAction {
-                        Desktop.getDesktop().browse(URI("https://discordapp.com/invite/V4qFVnh"))
-                    }
                     ctrl.githubLink.setOnAction {
-                        Desktop.getDesktop().browse(URI("https://github.com/liz3/SkIDE/issues"))
+                        Desktop.getDesktop().browse(URI("https://github.com/iCrafterMC/SkIDE/issues"))
                     }
                     ctrl.copyToClipBoard.setOnAction {
                         val stringSelection = StringSelection(theError)
