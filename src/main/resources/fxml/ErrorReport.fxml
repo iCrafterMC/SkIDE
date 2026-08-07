@@ -13,7 +13,7 @@
             </font>
         </Label>
         <Label alignment="TOP_LEFT" layoutX="14.0" layoutY="74.0" prefHeight="206.0" prefWidth="746.0"
-               text="Please don't ask why, but Sk-IDE had an error :(&#10;We would be really happy if you could report this!&#10;To report, please press the &quot;Copy&quot; button, or copy the content from this area.&#10;There are multiple ways to report the issue:&#10;1. Post in on the Skript Chat Discord Server Sk-IDE channel.&#10;2. Create an issue on GitLab.&#10;3. Report it to the user &quot;Liz3&quot; on SkUnity forums, SpigotMC, etc.">
+               text="Please don't ask why, but Sk-IDE had an error :(&#10;We would be really happy if you could report this!&#10;To report, please press the &quot;Copy&quot; button, or copy the content from this area.&#10;There are multiple ways to report the issue:&#10;1. Create an issue on GitHub.&#10;2. Report it to the user &quot;icrafter_mc&quot; on Discord.">
             <font>
                 <Font size="18.0"/>
             </font>
